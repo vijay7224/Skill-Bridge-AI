@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TPO Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body { background-color: #3d92d8; }
+    .summary-card {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 2px 6px rgba(187, 110, 110, 0.06);
+    }
+    .status-badge { font-size: 0.75rem; }
+    .recommend-tag { font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <span class="navbar-brand">TPO Dashboard</span>
+    <span class="navbar-text text-white">Training & Placement Officer</span>
+  </div>
+</nav>
+
+<div class="container-fluid mt-3">
+
+  <!-- Summary Cards -->
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card summary-card text-center"><div class="card-body"><h6>Total Students</h6><h3>{{ total }}</h3></div></div>
+    </div>
+    <div class="col-md-3">
+      <div class="card summary-card text-center"><div class="card-body"><h6>Eligible</h6><h3>{{ eligible }}</h3></div></div>
+    </div>
+    <div class="col-md-3">
+      <div class="card summary-card text-center"><div class="card-body"><h6>Placed</h6><h3>{{ placed }}</h3></div></div>
+    </div>
+    <div class="col-md-3">
+      <div class="card summary-card text-center"><div class="card-body"><h6>Recommended</h6><h3>{{ recommended }}</h3></div></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mt-4"><div class="card-body">
+    <form method="get" class="row g-2" action="{{ url_for('tpo.dashboard') }}">
+
+      <div class="col-md-3"><input type="text" name="search" class="form-control" placeholder="Search name / roll"></div>
+      <div class="col-md-2"><select name="branch" class="form-select"><option value="">All Branch</option><option>CSE</option><option>IT</option><option>ECE</option><option>ME</option></select></div>
+      <div class="col-md-2"><select name="batch" class="form-select"><option value="">All Batch</option><option>2023</option><option>2024</option><option>2025</option></select></div>
+      <div class="col-md-2"><select name="status" class="form-select"><option value="">All Status</option><option>Eligible</option><option>On Hold</option><option>Placed</option></select></div>
+      <div class="col-md-2"><select name="recommendation" class="form-select"><option value="">All Recommendation</option><option>Personally Recommended to HR</option><option>Not Recommended</option></select></div>
+      <div class="col-md-1"><button class="btn btn-primary w-100">Filter</button></div>
+    </form>
+  </div></div>
+
+  <!-- Student Table -->
+  <div class="card mt-3">
+    <div class="card-header fw-semibold">Students List</div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th><th>Roll No</th><th>Batch</th><th>CGPA</th><th>Skills</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td>
+              <strong>{{ s.name }}</strong><br>
+              <small><strong>Branch:-</strong> {{ s.branch }} </small><br>
+              
+            </td>
+            <td>{{ s.roll_no }}</td>
+            
+            <td>{{ s.batch }}</td>
+            <td>{{ s.cgpa }}</td>
+            <td>{{ s.skills }}</td>
+            
+            <td>
+              {% if s.status == 'Eligible' %}
+                <span class="badge bg-success status-badge">Eligible</span>
+              {% elif s.status == 'On Hold' %}
+                <span class="badge bg-primary status-badge">On Hold</span>
+              {% else %}
+                <span class="badge bg-warning text-dark status-badge">{{ s.status }}</span>
+              {% endif %}
+            </td>
+            {#<td><span class="badge bg-info text-dark recommend-tag">{{ s.recommendation_tag }}</span></td>#}
+            <td>
+              
+            
+             <form method="post" action="{{ url_for('tpo.update_status') }}" class="d-inline">
+    <input type="hidden" name="id" value="{{ s._id }}">
+    <input type="hidden" name="status" value="Eligible">
+    <button class="btn btn-sm btn-success">Eligible</button>
+</form>
+
+<form method="post" action="{{ url_for('tpo.update_status') }}" class="d-inline">
+    <input type="hidden" name="id" value="{{ s._id }}">
+    <input type="hidden" name="status" value="On Hold">
+    <button class="btn btn-sm btn-warning">On Hold</button>
+</form>
+
+<a href="{{ url_for('tpo.view_student', id=s._id) }}" class="btn btn-sm btn-info">View Profile</a>
+
+              {#<form method="post" action="/update_recommendation" class="d-inline">
+                <input type="hidden" name="id" value="{{ s._id }}">
+                <input type="hidden" name="recommendation" value="Personally Recommended to HR">
+                <button class="btn btn-sm btn-info">Recommend</button>
+              </form>
+              <form method="post" action="/update_recommendation" class="d-inline">
+                <input type="hidden" name="id" value="{{ s._id }}">
+                <input type="hidden" name="recommendation" value="Not Recommended">
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </form>#}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+```

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR – Shortlisted Students from TPO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f6fa;
+    }
+    .summary-card {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+    .student-table tbody tr:hover {
+      background-color: #f1f3f5;
+      cursor: pointer;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+    }
+    .decision-badge {
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <span class="navbar-brand">HR Dashboard</span>
+      <span class="navbar-text text-white">
+        Access granted by: Training & Placement Officer
+      </span>
+    </div>
+  </nav>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mt-3">
+    <div class="col-6 col-md-3">
+      <div class="card summary-card text-center">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Total Profiles Received</h6>
+          <h3 class="mb-0">{{ total }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card summary-card text-center">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Shortlisted by HR</h6>
+          <h3 class="mb-0">{{ shortlisted }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card summary-card text-center">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Rejected by HR</h6>
+          <h3 class="mb-0">{{ rejected }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card summary-card text-center">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Pending Decision</h6>
+          <h3 class="mb-0">{{ pending }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER FORM -->
+  <form class="row g-2 align-items-end mt-3"
+      method="get"
+      action="{{ url_for('hr.dashboard') }}">
+
+    <div class="col-md-3">
+      <label class="form-label">Search student</label>
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Name / Roll / Email"
+        value="{{ request.args.get('search','') }}"
+      />
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Min CGPA</label>
+      <input
+        type="number"
+        step="0.1"
+        name="min_cgpa"
+        class="form-control"
+        placeholder="e.g. 7.5"
+        value="{{ request.args.get('min_cgpa','') }}"
+      />
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Skill contains</label>
+      <input
+        type="text"
+        name="skill"
+        class="form-control"
+        placeholder="e.g. React, Java"
+        value="{{ request.args.get('skill','') }}"
+      />
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">HR decision</label>
+      <select class="form-select" name="decision">
+        <option value="">All</option>
+        <option value="Pending">Pending</option>
+        <option value="Shortlisted">Shortlisted</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+
+    <div class="col-12 d-flex justify-content-end mt-2">
+      <button type="submit" class="btn btn-primary">
+        Apply Filters
+      </button>
+    </div>
+  </form>
+
+  <!-- STUDENT LIST -->
+  <div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">Students shared by TPO</span>
+      <span class="text-muted small">
+        Only profiles approved / recommended by the Training & Placement Officer
+      </span>
+    </div>
+
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>CGPA</th>
+            <th>Skills</th>
+            <th>Status</th>
+            <th>Action</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td>
+              <strong>{{ s.name }}</strong><br>
+              <small>{{ s.branch }} • {{ s.batch }} • {{ s.roll_no }}</small><br>
+              <small>{{ s.email }}</small>
+            </td>
+            <td>{{ s.cgpa }}</td>
+            <td>{{ s.skills }}</td>
+            <td>
+              {% if s.hr_decision == 'Shortlisted' %}
+                <span class="badge bg-success">Shortlisted</span>
+              {% elif s.hr_decision == 'Rejected' %}
+                <span class="badge bg-danger">Rejected</span>
+              {% else %}
+                <span class="badge bg-secondary">Pending</span>
+              {% endif %}
+            </td>
+           <td>
+  <!-- View Profile Button -->
+  <a href="{{ url_for('hr.view_student', id=s._id) }}"
+   class="btn btn-sm btn-info">
+  View Profile
+</a>
+
+
+  {% if s.hr_decision == 'Pending' or not s.hr_decision %}
+  <!-- Shortlist Button -->
+  <form method="post"
+      action="{{ url_for('hr.decision') }}"
+      class="d-inline">
+  <input type="hidden" name="id" value="{{ s._id }}">
+  <input type="hidden" name="status" value="Shortlisted">
+  <button type="submit" class="btn btn-sm btn-success">
+    Shortlist
+  </button>
+</form>
+
+  <form method="post"
+      action="{{ url_for('hr.decision') }}"
+      class="d-inline">
+  <input type="hidden" name="id" value="{{ s._id }}">
+  <input type="hidden" name="status" value="Rejected">
+  <button type="submit" class="btn btn-sm btn-danger">
+    Reject
+  </button>
+</form>
+
+  {% else %}
+    <span class="text-muted">Decision Done</span>
+  {% endif %}
+</td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

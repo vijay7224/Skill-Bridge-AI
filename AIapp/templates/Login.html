@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TPO Portal - Login & Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='logincss.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="welcome-text">
+        <h1>Welcome to <span>VASTRA</span></h1>
+        <p>Bridge between Training & Placement Officer, Students and HR</p>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- Toggle buttons -->
+      <div class="form-toggle">
+        <button id="loginBtn" class="active">Login</button>
+        <button id="registerBtn">Register</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="auth-form active" method="POST" action="/login">
+
+        <div class="role-selector">
+            <label>Select Role</label>
+            <div class="role-buttons">
+                <button type="button" class="role-btn active" data-role="tpo">
+                    <i class="fas fa-user-shield"></i> TPO
+                </button>
+                <button type="button" class="role-btn" data-role="student">
+                    <i class="fas fa-user-graduate"></i> Student
+                </button>
+                <button type="button" class="role-btn" data-role="hr">
+                    <i class="fas fa-user-tie"></i> HR
+                </button>
+            </div>
+            <!-- Hidden field to send role -->
+            <input type="hidden" id="loginRole" name="role" value="tpo">
+        </div>
+
+        <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" placeholder="Email" required>
+        </div>
+
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Login <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <p class="form-note">
+            <i class="fas fa-info-circle"></i> Students: Use registered email. TPO approval required.
+        </p>
+
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" class="auth-form" method="POST" action="/register">
+        <div class="note">
+          <i class="fas fa-exclamation-triangle"></i> Registration for Students only
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" name="fullname" placeholder="Full Name" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="Email" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-id-card"></i>
+          <input type="text" name="enrollment" placeholder="Enrollment No" required>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          Register <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    // Toggle between login/register
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+
+    loginBtn.addEventListener('click', () => {
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      loginBtn.classList.add('active');
+      registerBtn.classList.remove('active');
+    });
+
+    registerBtn.addEventListener('click', () => {
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+      registerBtn.classList.add('active');
+      loginBtn.classList.remove('active');
+    });
+
+    // Role selector for login
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('loginRole').value = btn.dataset.role;
+      });
+    });
+  </script>
+</body>
+</html>
